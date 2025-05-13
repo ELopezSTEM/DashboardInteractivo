@@ -44,3 +44,68 @@ def tabla_ciudades(fecha_inicio, fecha_fin):
     resumen_ciudades = resumen_ciudades.set_index("Ciudad")
 
     return resumen_ciudades
+
+def tabla_metricas_pedidos(fecha_inicio, fecha_fin):
+    fecha_inicio = pd.to_datetime(fecha_inicio)
+    fecha_fin = pd.to_datetime(fecha_fin)
+
+    df_filtrado = merged_data[
+        (merged_data["order_purchase_timestamp"] >= fecha_inicio) &
+        (merged_data["order_purchase_timestamp"] <= fecha_fin)]
+    
+    resumen_ciudades = df_filtrado.groupby(
+        ["customer_city", "customer_state"]
+    )["customer_unique_id"].nunique().reset_index(name = "num_clientes")
+
+    pedidos_ciudad_estado = df_filtrado.groupby(
+        ["customer_city", "customer_state"]
+    )["order_id"].nunique().reset_index(name = "num_pedidos")
+    
+    tabla_final = resumen_ciudades.merge(pedidos_ciudad_estado, on = ["customer_state", "customer_city"])
+    
+    total_pedidos = tabla_final["num_pedidos"].sum()
+    
+    tabla_final["porcentaje_pedidos"] = (tabla_final["num_pedidos"] / total_pedidos) * 100
+    tabla_final["ratio_pedidos_cliente"] = tabla_final["num_pedidos"] / tabla_final["num_clientes"]
+    
+    return tabla_final
+    
+#PUNTO 3
+def analisis_retrasos():
+    df_filtrado = merged_data.copy()
+    
+    df_filtrado["retraso_dias"] = (df_filtrado["order_delivered_customer_date"] - df_filtrado["order_estimated_delivery_date"]).dt.days
+
+    retrasos = df_filtrado[df_filtrado["retraso_dias"] > 0]
+
+    total_pedidos_ciudad = df_filtrado.groupby("customer_city")["order_id"].count().reset_index(name="total_pedidos")
+
+    retrasos_ciudad = retrasos.groupby("customer_city").agg(
+        pedidos_retrasados=("order_id", "count"),
+        retraso_medio_dias=("retraso_dias", "mean")
+    ).reset_index()
+
+    tabla_retrasos = total_pedidos_ciudad.merge(retrasos_ciudad, on="customer_city", how="left").fillna(0)
+
+    tabla_retrasos["porcentaje_retrasados"] = (tabla_retrasos["pedidos_retrasados"] / tabla_retrasos["total_pedidos"]) * 100
+
+
+    tabla_retrasos.columns = ["Ciudad", "Total_Pedidos", "Pedidos_Retrasados", "Retraso_Medio_Dias", "Porcentaje_Retrasados"]
+
+    return tabla_retrasos
+
+#PUNTO 3
+def analisis_reviews_sin_retrasos(df_reviews):
+    
+    df_filtrado = merged_data.copy()
+    
+    df_filtrado["retraso_dias"] = (
+        df_filtrado["order_delivered_customer_date"] - df_filtrado["order_estimated_delivery_date"]
+    ).dt.days
+
+    df_sin_retraso = df_filtrado[df_filtrado["retraso_dias"] <= 0]
+
+    df_reviews_filtrado = df_reviews.merge(
+        df_sin_retraso[["order_id", "customer_state"]],
+        on="order_id", how="inner"
+    )
