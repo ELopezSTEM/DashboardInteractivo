@@ -86,16 +86,8 @@ if seccion == "🏠 Resumen General":
 
 elif seccion == "📍 Clientes por Estado y Ciudad":
     st.title("📍 Clientes por Estado y Ciudad")
-    # Definir un rango de fechas por defecto (puedes ajustarlo según tus necesidades)
-    fecha_inicio_default = datetime(2025, 1, 1)
-    fecha_fin_default = datetime(2025, 12, 31)
+    grafico_barras_estados()
 
-    # Crear los selectores de fechas
-    fecha_inicio = st.date_input("Selecciona la fecha de inicio", value=fecha_inicio_default)
-    fecha_fin = st.date_input("Selecciona la fecha de fin", value=fecha_fin_default)
-
-    st.pyplot(grafico_barras_estados(fecha_inicio, fecha_fin))
-    
 elif seccion == "📦 Pedidos por Cliente":
     st.title("📦 Pedidos por Cliente")
     # Pedidos, % del total, ratio por cliente
