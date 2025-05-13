@@ -9,10 +9,7 @@ import numpy as np
 from datetime import datetime
 
 from src.visualizations import grafico_barras_estados
-
-
-
-st.title("📊 Dashboard Interactivo Olist")
+from src.analysis import tabla_ciudades
 
 # Logo y título (opcional)
 with st.sidebar:
@@ -21,8 +18,8 @@ with st.sidebar:
 
     # Navegador principal
     seccion = st.radio("Selecciona una sección:", [
-        "🏠 Resumen General",
-        "📍 Clientes por Estado y Ciudad",
+        "🏠 Inicio",
+        "📍 Clientes, Estados y Ciudades",
         "📦 Pedidos por Cliente",
         "⏱️ Entregas Tardías",
         "⭐ Opiniones (Reviews)",
@@ -30,9 +27,9 @@ with st.sidebar:
     ])
 
 # Lógica para cada sección
-if seccion == "🏠 Resumen General":
+if seccion == "🏠 Inicio":
     # Título de la sección
-    st.title("🏠 Resumen General")
+    st.title("📊 Dashboard Interactivo Olist")
 
 # Breve introducción de la app y Olist
     st.write("""
@@ -84,9 +81,32 @@ if seccion == "🏠 Resumen General":
     # Mostrar el gráfico en Streamlit
     st.pyplot(fig)
 
-elif seccion == "📍 Clientes por Estado y Ciudad":
-    st.title("📍 Clientes por Estado y Ciudad")
-    grafico_barras_estados()
+elif seccion == "📍 Clientes, Estados y Ciudades":
+    st.title("📍 Clientes, Estados y Ciudades")
+    st.write("En esta seccion se encuentran gráficos relacionados a los clientes, estados y ciudades.\n Los gráficos son reactivos a los cambios en los campos de fechas ubicados antes de los mismos.")
+    st.markdown("---")
+    st.subheader("Campos para modificar el rango de fechas:")
+    
+    # Definir un rango de fechas por defecto (puedes ajustarlo según tus necesidades)
+    fecha_inicio_default = datetime(2000, 1, 1)
+    fecha_fin_default = datetime(2025, 12, 31)
+
+    # Crear los selectores de fechas
+    fecha_inicio = st.date_input("Selecciona la fecha de inicio", value=fecha_inicio_default)
+    fecha_fin = st.date_input("Selecciona la fecha de fin", value=fecha_fin_default)
+    
+    st.markdown("---")
+    
+    st.subheader("Gráfico de barras Número de Clientes por Estado:")
+    
+    st.pyplot(grafico_barras_estados(fecha_inicio, fecha_fin))
+    
+    st.markdown("---")
+    
+    st.subheader("Tabla Número de Clientes por Ciudad:")
+    
+    st.write(tabla_ciudades(fecha_inicio, fecha_fin))
+    
 
 elif seccion == "📦 Pedidos por Cliente":
     st.title("📦 Pedidos por Cliente")

@@ -6,6 +6,7 @@ from .analysis import top_5_estados
 def grafico_barras_estados(fecha_inicio, fecha_fin):
     
     df = top_5_estados(fecha_inicio, fecha_fin)
+    print(df)
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
