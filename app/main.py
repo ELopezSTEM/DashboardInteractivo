@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src import grafico_barras_estados
 
 st.title("📊 Dashboard Interactivo Olist")
 
@@ -79,7 +78,6 @@ if seccion == "🏠 Resumen General":
 
 elif seccion == "📍 Clientes por Estado y Ciudad":
     st.title("📍 Clientes por Estado y Ciudad")
-    grafico_barras_estados()
 
 elif seccion == "📦 Pedidos por Cliente":
     st.title("📦 Pedidos por Cliente")
@@ -96,4 +94,3 @@ elif seccion == "⭐ Opiniones (Reviews)":
 elif seccion == "➕ Métricas Adicionales":
     st.title("➕ Métricas Adicionales")
     # Cualquier análisis extendido o bonus que decidas agregar
->>>>>>> 5e3f41ee33f78d0b7fa721b30999bdd4ddbdc256
