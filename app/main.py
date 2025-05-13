@@ -1,9 +1,16 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from datetime import datetime
 
-from src import grafico_barras_estados
+from src.visualizations import grafico_barras_estados
+
+
 
 st.title("📊 Dashboard Interactivo Olist")
 
@@ -79,8 +86,16 @@ if seccion == "🏠 Resumen General":
 
 elif seccion == "📍 Clientes por Estado y Ciudad":
     st.title("📍 Clientes por Estado y Ciudad")
-    grafico_barras_estados()
+    # Definir un rango de fechas por defecto (puedes ajustarlo según tus necesidades)
+    fecha_inicio_default = datetime(2025, 1, 1)
+    fecha_fin_default = datetime(2025, 12, 31)
 
+    # Crear los selectores de fechas
+    fecha_inicio = st.date_input("Selecciona la fecha de inicio", value=fecha_inicio_default)
+    fecha_fin = st.date_input("Selecciona la fecha de fin", value=fecha_fin_default)
+
+    st.pyplot(grafico_barras_estados(fecha_inicio, fecha_fin))
+    
 elif seccion == "📦 Pedidos por Cliente":
     st.title("📦 Pedidos por Cliente")
     # Pedidos, % del total, ratio por cliente
@@ -96,4 +111,3 @@ elif seccion == "⭐ Opiniones (Reviews)":
 elif seccion == "➕ Métricas Adicionales":
     st.title("➕ Métricas Adicionales")
     # Cualquier análisis extendido o bonus que decidas agregar
->>>>>>> 5e3f41ee33f78d0b7fa721b30999bdd4ddbdc256
