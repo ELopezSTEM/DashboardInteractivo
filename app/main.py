@@ -11,8 +11,10 @@ import numpy as np
 from datetime import datetime
 
 # Importaciones de metodos de otras clases
-from src.visualizations import grafico_barras_estados
+from src.visualizations import clientes_estado
 from src.analysis import tabla_ciudades
+from src.visualizations import pedidos_por_ciudad
+from src.visualizations import pedidos_con_retraso
 
 # Definicion de la sidebar
 def sidebar():
@@ -27,8 +29,8 @@ def sidebar():
         seccion = st.radio("Selecciona una sección:", [
             "🏠 Inicio",
             "📍 Clientes, Estados y Ciudades",
-            "📦 Pedidos por Cliente",
-            "⏱️ Entregas Tardías",
+            "📦 Pedidos, Ciudades y Clientes",
+            "⏱️ Pedidos con Retraso",
             "⭐ Opiniones (Reviews)",
             "➕ Métricas Adicionales",
         ])
@@ -109,7 +111,7 @@ def selector_secciones(seccion):
         
         # Grafico de barras de numeros de clientes por estado
         st.subheader("Gráfico de barras Número de Clientes por Estado:")
-        st.pyplot(grafico_barras_estados(fecha_inicio, fecha_fin))
+        st.pyplot(clientes_estado(fecha_inicio, fecha_fin))
         st.markdown("---")
         
         # Tabla de numeros de clientes por ciudad
@@ -117,13 +119,51 @@ def selector_secciones(seccion):
         st.write(tabla_ciudades(fecha_inicio, fecha_fin))
         st.markdown("---")
 
-    elif seccion == "📦 Pedidos por Cliente":
-        st.title("📦 Pedidos por Cliente")
-        # Pedidos, % del total, ratio por cliente
+    elif seccion == "📦 Pedidos, Ciudades y Clientes":
+        st.title("📦 Pedidos y Clientes")
+        st.write("En esta seccion se encuentra el análisis relacionado con los pedidos y clientes de la tienda.\n Existen campos modificables por el usuario para visualizar cambios en los gráficos en tiempo real.")
+        st.markdown("---")
+        
+        st.subheader("Campos para modificar la información del gráfico:")
+        # Sidebar con filtros
+        top_n = st.slider("Selecciona el número de ciudades a mostrar", 5, 10, 20)
+        
+        criterio = st.selectbox(
+            "Ordenar ciudades por",
+            options=['num_pedidos', 'porcentaje_pedidos', 'ratio_pedidos_cliente'],
+            format_func=lambda x: {
+                'num_pedidos': "Número de pedidos",
+                'porcentaje_pedidos': "Porcentaje de pedidos",
+                'ratio_pedidos_cliente': "Pedidos por cliente (ratio)"
+            }[x]
+        )
+        st.markdown("---")
+        
+        grafico, df = pedidos_por_ciudad(top_n, criterio)
+        
+        # Grafico de barras de numeros de clientes por estado
+        st.subheader("Gráfico de barras Pedidos por Ciudad:")
+        st.text("Este gráfico de barras muestra información relacionado con los pedidos en cada ciudad, puede mostrar diferente información dependiendo de lo seleccionado por el usuario anteriormente")
+        st.pyplot(grafico)
+        st.markdown("---")
+        
+        # Tabla de numeros de clientes por ciudad
+        st.subheader("Tabla con toda la información del análisis:")
+        st.write(df)
+        st.markdown("---")
 
-    elif seccion == "⏱️ Entregas Tardías":
-        st.title("⏱️ Análisis de Entregas Tardías")
-        # Nº de pedidos tarde, % y diagnóstico
+    elif seccion == "⏱️ Pedidos con Retraso":
+        st.title("⏱️ Análisis de Pedidos con Retraso")
+        st.write("En esta seccion se encuentra el análisis relacionado con los pedidos que cuentan con un retraso en su envío.\n Existen campos modificables por el usuario para visualizar cambios en los gráficos en tiempo real.")
+        st.markdown("---")
+        
+        # Grafico de barras de numeros de clientes por estado
+        st.subheader("Gráfico de barras Pedidos por Ciudad:")
+        st.text("Este gráfico de barras muestra información relacionado con los pedidos en cada ciudad, puede mostrar diferente información dependiendo de lo seleccionado por el usuario anteriormente")
+        
+        st.markdown("---")
+        
+        pedidos_con_retraso()
 
     elif seccion == "⭐ Opiniones (Reviews)":
         st.title("⭐ Opiniones de Clientes")
