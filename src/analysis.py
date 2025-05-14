@@ -2,7 +2,7 @@ from src import data_cleaning
 import pandas as pd
 
 
-df_customer, df_orders = data_cleaning()
+df_customer, df_orders, df_reviews = data_cleaning()
 merged_data = df_customer.merge(df_orders, on="customer_id")
 
 
@@ -94,8 +94,8 @@ def analisis_retrasos():
 
     return tabla_retrasos
 
-#PUNTO 3
-def analisis_reviews_sin_retrasos(df_reviews):
+#PUNTO 4
+def analisis_reviews_sin_retrasos():
     
     df_filtrado = merged_data.copy()
     
@@ -109,3 +109,12 @@ def analisis_reviews_sin_retrasos(df_reviews):
         df_sin_retraso[["order_id", "customer_state"]],
         on="order_id", how="inner"
     )
+    
+    resumen_reviews = df_reviews_filtrado.groupby("customer_state").agg(
+        num_reviews = ("review_id", "count"),
+        score_medio = ("review_score", "mean")
+	)
+    
+    resumen_reviews.colums = ["Estado", "Numero_Reviews", "Score_Medio"]
+    
+    return resumen_reviews
