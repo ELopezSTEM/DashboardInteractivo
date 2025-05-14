@@ -18,10 +18,10 @@ def top_5_estados(fecha_inicio, fecha_fin):
 
     clientes_por_estado = df_filtrado.groupby(
         "customer_state")["customer_unique_id"].nunique().reset_index()
-    clientes_por_estado.columns = ["customer_state", "customer_sum"]
+    clientes_por_estado.columns = ["Estado", "Numero Clientes"]
 
     top_5 = clientes_por_estado.sort_values(
-        by="customer_sum", ascending=False).head(5)
+        by="Numero Clientes", ascending=False).head(5)
 
     return top_5
 
@@ -68,9 +68,12 @@ def tabla_metricas_pedidos(fecha_inicio, fecha_fin):
     tabla_final["porcentaje_pedidos"] = (tabla_final["num_pedidos"] / total_pedidos) * 100
     tabla_final["ratio_pedidos_cliente"] = tabla_final["num_pedidos"] / tabla_final["num_clientes"]
     
+    
+    tabla_final.columns = ["Ciudad", "Estado", "Numero Clientes", "Numero Pedidos", "Porcentaje Pedidos", "Ratio Pedidos Cliente"]
+    tabla_final = tabla_final.set_index("Ciudad")
+    
     return tabla_final
     
-#PUNTO 3
 def analisis_retrasos():
     df_filtrado = merged_data.copy()
     
@@ -90,11 +93,13 @@ def analisis_retrasos():
     tabla_retrasos["porcentaje_retrasados"] = (tabla_retrasos["pedidos_retrasados"] / tabla_retrasos["total_pedidos"]) * 100
 
 
-    tabla_retrasos.columns = ["Ciudad", "Total_Pedidos", "Pedidos_Retrasados", "Retraso_Medio_Dias", "Porcentaje_Retrasados"]
+    tabla_retrasos.columns = ["Ciudad", "Total Pedidos", "Pedidos Retrasados", "Retraso Medio Dias", "Porcentaje Retrasados"]
+    tabla_retrasos = tabla_retrasos.set_index("Ciudad")
+    
+    tabla_retrasos = tabla_retrasos[tabla_retrasos["Pedidos Retrasados"] > 0]
 
     return tabla_retrasos
 
-#PUNTO 4
 def analisis_reviews_sin_retrasos():
     
     df_filtrado = merged_data.copy()
@@ -113,8 +118,9 @@ def analisis_reviews_sin_retrasos():
     resumen_reviews = df_reviews_filtrado.groupby("customer_state").agg(
         num_reviews = ("review_id", "count"),
         score_medio = ("review_score", "mean")
-	)
+	).reset_index()
     
-    resumen_reviews.colums = ["Estado", "Numero_Reviews", "Score_Medio"]
+    resumen_reviews.columns = ["Estado", "Numero_Reviews", "Score_Medio"]
+    resumen_reviews = resumen_reviews.set_index("Estado")
     
     return resumen_reviews
