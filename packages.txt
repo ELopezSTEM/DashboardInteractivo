@@ -1,0 +1,5 @@
+g++
+build-essential
+libgeos-dev
+libproj-dev
+libgdal-dev
