@@ -263,3 +263,68 @@ def analisis_dia_semana():
     dia_top_nacional = merged_data["dia_semana"].value_counts().idxmax()
     
     return dia_top_estado, porcentaje_dias, dia_top_nacional
+
+
+# Calculamos el crecimiento acumulado para poder analizar que categorias han aumentadno 
+# sus ventas a lo largo de los años.
+# Agrupa por categoria y año, compara las ventas del primer y ultimo año donde hubo ventas.
+# Crecimiento acumulado = (ventas_fin - ventas_inicio) / ventas_inicio
+# Devuelve un DataFrame con columnas:
+#     - "product_category_name"
+#     - "ventas_total"
+#     - "anio_inicio"
+#     - "anio_fin"
+#     - "ventas_inicio"
+#     - "ventas_fin"
+#     - "crecimiento_acumulado"
+def categorias_mayor_crecimiento():
+    #Unimos datos
+    merged = df_orders_items.merge(df_products_limpio, on="product_id")
+    merged = merged.merge(df_orders[["order_id", "order_purchase_timestamp"]], on="order_id")
+
+    #Columna de año
+    merged["anio"] = pd.to_datetime(merged["order_purchase_timestamp"]).dt.year
+
+    #Agrupamos ventas por año y categoria
+    ventas_por_categoria = merged.groupby(["product_category_name", "anio"]).agg(
+        ventas_anuales=("order_id", "count")
+    ).reset_index()
+
+    #Creamos tabla resumen por categoria
+    resumen = ventas_por_categoria.groupby("product_category_name").agg(
+        ventas_total=("ventas_anuales", "sum"),
+        anio_inicio=("anio", "min"),
+        anio_fin=("anio", "max")
+    ).reset_index()
+
+    #Obtenemos ventas del primer año
+    ventas_inicio = ventas_por_categoria.merge(
+        resumen[["product_category_name", "anio_inicio"]],
+        left_on=["product_category_name", "anio"],
+        right_on=["product_category_name", "anio_inicio"],
+        how="inner"
+    )[["product_category_name", "ventas_anuales"]].rename(columns={"ventas_anuales": "ventas_inicio"})
+
+    #Ventas del ultimo año
+    ventas_fin = ventas_por_categoria.merge(
+        resumen[["product_category_name", "anio_fin"]],
+        left_on=["product_category_name", "anio"],
+        right_on=["product_category_name", "anio_fin"],
+        how="inner"
+    )[["product_category_name", "ventas_anuales"]].rename(columns={"ventas_anuales": "ventas_fin"})
+
+    #Unimos todo
+    resultado = resumen.merge(ventas_inicio, on="product_category_name")
+    resultado = resultado.merge(ventas_fin, on="product_category_name")
+
+    #Calculamos el crecimiento acumuladi
+    resultado["crecimiento_acumulado"] = (
+        (resultado["ventas_fin"] - resultado["ventas_inicio"]) / resultado["ventas_inicio"].replace(0, 1)
+    )
+    
+    #Renombramos y ordenamos por crecimiento
+    resultado.columns = ["Categoria", "Ventas Totales", "Año Inicio", "Año Fin", "Ventas Primer Año", "Ventas Ultimo Año", "Crecimiento Acumulado"]
+    resultado.set_index("Categoria")
+    resultado = resultado.sort_values("Crecimiento Acumulado", ascending=False)
+
+    return resultado
