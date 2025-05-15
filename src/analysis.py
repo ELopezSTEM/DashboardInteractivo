@@ -69,19 +69,14 @@ def tabla_ciudades(fecha_inicio, fecha_fin):
 #   -"Numero Pedidos"
 #   -"Porcentaje Pedidos"
 #   -"Ratio Pedidos Clente"
-def tabla_metricas_pedidos(fecha_inicio, fecha_fin):
-    fecha_inicio = pd.to_datetime(fecha_inicio)
-    fecha_fin = pd.to_datetime(fecha_fin)
+def tabla_metricas_pedidos():
 
-    df_filtrado = merged_data[
-        (merged_data["order_purchase_timestamp"] >= fecha_inicio) &
-        (merged_data["order_purchase_timestamp"] <= fecha_fin)]
     
-    resumen_ciudades = df_filtrado.groupby(
+    resumen_ciudades = merged_data.groupby(
         ["customer_city", "customer_state"]
     )["customer_unique_id"].nunique().reset_index(name = "num_clientes")
 
-    pedidos_ciudad_estado = df_filtrado.groupby(
+    pedidos_ciudad_estado = merged_data.groupby(
         ["customer_city", "customer_state"]
     )["order_id"].nunique().reset_index(name = "num_pedidos")
     
@@ -263,3 +258,6 @@ def analisis_dia_semana():
     dia_top_nacional = merged_data["dia_semana"].value_counts().idxmax()
     
     return dia_top_estado, porcentaje_dias, dia_top_nacional
+
+def get_estados():
+    return merged_data.groupby("customer_state")

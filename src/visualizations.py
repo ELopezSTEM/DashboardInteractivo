@@ -12,6 +12,8 @@ from .analysis import top_5_estados
 from .analysis import tabla_metricas_pedidos
 from .analysis import analisis_retrasos
 from .analysis import analisis_reviews_sin_retrasos
+from .analysis import top_categoria
+from .analysis import analisis_dia_semana
 
 
 # Grafico de barras que muestra estados y numero de clientes por cada uno.
@@ -116,7 +118,7 @@ def pedidos_con_retraso():
         
     return figuras, df
     
-
+    
 def get_star_rating(score):
     """Convierte la puntuación en estrellas (de 1 a 5) con emojis."""
     stars = int(round(score))  # redondea al entero más cercano
@@ -205,5 +207,60 @@ def pedidos_opiniones():
 
 
     return st_folium(m, width=725)
+    
+
+def top_categorias(estado):
+    df = top_categoria(estado)
+    
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    # Color
+    color = "#4C72B0"
+    
+    # Barra
+    bars = ax.bar(df.index, df['Total de Ventas'], color=color)
+
+    # Título
+    ax.set_title("Mejores Categorias de Producto por Estado", fontsize=16, pad=20)
+
+    # Ejes limpios
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_alpha(0.2)
+    ax.spines['bottom'].set_alpha(0.2)
+
+    ax.tick_params(axis='y', labelsize=11)
+    ax.tick_params(axis='x', labelsize=11, rotation=45)
+
+    # Quitar líneas de los ticks
+    ax.tick_params(axis='both', length=0)
+
+    # Añadir valores exactos encima de las barras
+    for bar in bars:
+        height = bar.get_height()
+        ax.annotate(f'{int(height)}',
+                    xy=(bar.get_x() + bar.get_width() / 2, height),
+                    xytext=(0, 5),  # Desplazamiento vertical
+                    textcoords="offset points",
+                    ha='center', va='bottom',
+                    fontsize=11, color='#333333')
+
+    # Espacio limpio alrededor del gráfico
+    fig.tight_layout()
+    return fig
+    
+    
+def dia_semana_mayor_ventas():
+    df, df2, string = analisis_dia_semana()
+    
+    fig, ax = plt.subplots(figsize=(8, 4))
+    df2['Porcentaje Estados'].plot(kind='line', marker='o', ax=ax, color='blue')
+
+    ax.set_title("(%) de Estados por Día de la Semana", fontsize=14)
+    ax.set_ylabel("Porcentaje de Estados(%)")
+    ax.set_xlabel("Día de la Semana")
+    ax.grid(True)
+    plt.xticks(rotation=45)
+    return fig
     
     

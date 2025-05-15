@@ -8,7 +8,10 @@ from src.visualizations import pedidos_opiniones
 from src.visualizations import pedidos_con_retraso as vis_pedidos_con_retraso
 from src.visualizations import pedidos_por_ciudad
 from src.analysis import tabla_ciudades
+from src.analysis import get_estados
 from src.visualizations import clientes_estado
+from src.visualizations import top_categorias
+from src.visualizations import dia_semana_mayor_ventas
 
 # Importaciones de librerias
 from datetime import datetime
@@ -67,7 +70,17 @@ def clientes_estados_ciudades():
     st.subheader("Tabla Número de Clientes por Ciudad:")
     st.write(tabla_ciudades(fecha_inicio, fecha_fin))
     st.markdown("---")
-
+    
+    st.subheader("Análisis Descriptivo:")
+    st.write("Hemos observado que las ciudades están muy fragmentadas, hay muchas que solo tienen uno o muy pocos clientes. Esto indica que hay poca presencia de Olist en las pequeñas ciudades, casi todas las ventas son de las grandes  ciudades")
+    st.markdown("---")
+    
+    st.subheader("Impacto, ¿Que puede hacer el negocio para mejorar?:")
+    st.write("Con los resultados obtenidos podemos tomar dos decisiones:")
+    st.write("- Centrarnos en las ciudades mas grandes, ya que hay se centran la mayoría de clientes.")
+    st.write("- Explorar opciones de expansión en ciudades mas pequeñas, realizando por ejemplo campañas de publicidad.")
+    st.markdown("---")
+    
 # Metodo que carga la pantalla con el analisis relacionado con los pedidos entre las diferentes ciudades y clientes
 def pedidos_ciudades_clientes():
     st.title("📦 Pedidos y Clientes")
@@ -101,6 +114,14 @@ def pedidos_ciudades_clientes():
     st.subheader("Tabla con toda la información del análisis:")
     st.write(df)
     st.markdown("---")
+    
+    st.subheader("Análisis Descriptivo:")
+    st.write("Sacamos unas conclusiones muy parecidas al punto anterior, hay poca presencia de Olist en pequeñas ciudades.\n Otro punto a destacar es que el ratio de pedidos por cliente es 1 en casi todas las ciudades, lo que indica una fidelidad prácticamente nula.")
+    st.markdown("---")
+    
+    st.subheader("Impacto, ¿Que puede hacer el negocio para mejorar?:")
+    st.write("Decisiones muy similares al punto anterior, y si de verdad ese es el ratio por cliente, se debería analizar porque pasa eso, ya que para una empresa la fidelización de los clientes es uno de los  aspectos mas importante:")
+    st.markdown("---")
 
 # Metodo que carga la pantalla con el analisis relacionado con los pedidos que han llegado con retraso
 def pedidos_con_retraso():
@@ -114,11 +135,64 @@ def pedidos_con_retraso():
     for grafico in graficos:
         st.pyplot(grafico)
     st.markdown("---")
+    
+    # Tabla de numeros de clientes por ciudad
+    st.subheader("Tabla con toda la información del análisis:")
+    st.write(df)
+    st.markdown("---")
+    
+    st.subheader("Análisis Descriptivo:")
+    st.write("Comprobamos que el 97.55% de los retrasos se debe a problemas logísticos en el envio.")
+    st.markdown("---")
+    
+    st.subheader("Impacto, ¿Que puede hacer el negocio para mejorar?:")
+    st.write("Mediante conclusiones aproximadas en cálculos entre diferentes fechas, identificar porque pasan esos retrasos y explorar opciones de mejora:")
+    st.markdown("---")
 
 # Metrodo que carga la pantalla con el analisis de las opiniones de los clientes en base a los pedidos
 def opiniones_pedidos():
     st.title("⭐ Opiniones de Clientes")
+    st.write("En esta seccion se encuentra el análisis relacionado con las opiniones de los clientes.")
+    st.markdown("---")
+    
+    # Subtítulo y descripción inicial
+    st.subheader("Análisis geográfico de satisfacción del cliente")
+    st.markdown(
+        """
+        Este mapa interactivo muestra la **puntuación media de reseñas por estado** en Brasil, 
+        basado en las opiniones de los clientes que no han reportado retrasos. Cada estado está coloreado 
+        según su nivel de satisfacción, lo que permite identificar rápidamente las regiones con mejor o 
+        peor percepción del servicio. Consta con marcadores interactuables para mayor detalle.
+        """
+    )
+
+    # Mapa generado
     pedidos_opiniones()
+
+def metricas_adicionales():
+    
+    st.title("➕ Métricas Adicionales")
+    st.markdown("---")
+    st.subheader("Gráfico de barras Categorías Top por Estado:")
+    st.text("Este gráfico muestra las categorías de producto con mayor volumen de ventas en el estado seleccionado, permitiendo identificar preferencias regionales de consumo.")
+    estados = get_estados()
+    
+    estado = st.selectbox("Seleccionar Estado",
+            options=estados,
+        )
+    fig = top_categorias(estado)    
+    # Gráfico de barras de categorías más vendidas por estado
+    
+    st.pyplot(fig)
+    st.markdown("---")
+    
+    st.subheader("Porcentaje de estados según su día de mayor venta")
+    st.markdown(
+        """
+        Este gráfico muestra qué porcentaje de los estados tiene su mayor volumen de ventas en cada día de la semana.
+        """
+    )
+    st.pyplot(dia_semana_mayor_ventas())
 
 # Definicion de la sidebar
 def sidebar():
@@ -158,6 +232,9 @@ def selector_secciones(seccion):
 
     elif seccion == "⭐ Opiniones (Reviews)":
         opiniones_pedidos()
+        
+    elif seccion == "➕ Métricas Adicionales":
+        metricas_adicionales()
 
 
 sidebar()
